@@ -6,13 +6,13 @@
 #include <functional>
 #include <memory>
 #include <unordered_set>
-class Loop {
+class EventLoop {
 public:
-    Loop() {
+    EventLoop() {
         uv_loop_init(&loop_);
     }
 
-    ~Loop() {
+    ~EventLoop() {
         // 关闭所有未关闭的句柄
         close_all_handles();
         // 运行一次循环以处理关闭回调
@@ -24,6 +24,10 @@ public:
 
     int run(uv_run_mode mode = UV_RUN_DEFAULT) {
         return uv_run(&loop_, mode);
+    }
+
+    void stop() {
+        uv_stop(&loop_); // 内部调用 libuv 的 uv_stop
     }
 
     void register_handle(uv_handle_t* handle) {
