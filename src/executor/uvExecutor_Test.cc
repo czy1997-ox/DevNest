@@ -16,7 +16,7 @@ int main() {
     });
 
     SignalHandlePtr signal = std::make_shared<SignalHandle>(loop);
-    signal->start(SIGINT, [&loop](int signum) {
+    signal->start(SIGINT, [&loop](int) {
         // std::cout << "Received SIGINT, stopping..." << std::endl;
         loop.stop();
     });

@@ -12,34 +12,36 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # 包含 libuv 配置
 # include(cmake/GetLibUv.cmake)
 
-# uv Test程序配置
-add_executable(uv_test example/uvtest.cpp)
-target_include_directories(uv_test
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/executor
-        ${CMAKE_CURRENT_SOURCE_DIR}/_deps/include
-)
-target_link_libraries(uv_test 
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/_deps/lib/libuv.so)
-set_target_properties(uv_test PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/output/bin"
-)
+set(CMAKE_BUILD_TYPE "Debug")
 
-# Execute Test程序配置
-add_executable(uvExecutor_Test 
-    src/executor/uvExecutor_Test.cc
-    src/executor/uvHandle.hpp
-    src/executor/uvExecutor.hpp)
-# 添加头文件搜索路径
-target_include_directories(uvExecutor_Test
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/executor
-        ${CMAKE_CURRENT_SOURCE_DIR}/_deps/include
-)
-target_link_libraries(uvExecutor_Test 
-    PRIVATE 
-        ${CMAKE_CURRENT_SOURCE_DIR}/_deps/lib/libuv.so)
-set_target_properties(uvExecutor_Test PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/output/bin"
-)
+# Debug模式配置
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # 启用位置无关代码（PIC）
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "Enable PIC for ASan" FORCE)
+
+    # 设置C/C++通用调试参数
+    set(COMMON_DEBUG_FLAGS "-g3 -O0 -Wall -Wextra")
+
+    # 应用至C编译器
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_DEBUG_FLAGS}" 
+        CACHE STRING "Debug C flags" FORCE)
+
+    # 应用至C++编译器
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_DEBUG_FLAGS}" 
+        CACHE STRING "Debug C++ flags" FORCE)
+
+    # 设置链接器参数（同时作用于C/C++目标）
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address" 
+        CACHE STRING "Debug linker flags" FORCE)
+
+    # 标记高级变量
+    mark_as_advanced(
+        CMAKE_POSITION_INDEPENDENT_CODE
+        CMAKE_C_FLAGS
+        CMAKE_CXX_FLAGS
+        CMAKE_EXE_LINKER_FLAGS
+    )
+endif()
+
+add_subdirectory(src)
+add_subdirectory(example)

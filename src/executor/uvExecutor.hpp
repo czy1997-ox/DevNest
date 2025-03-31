@@ -45,7 +45,7 @@ private:
     void close_all_handles() {
         for (auto handle : handles_) {
             if (!uv_is_closing(handle)) {
-                uv_close(handle, [](uv_handle_t* h) {});
+                uv_close(handle, [](uv_handle_t* ) {});
             }
         }
     }
