@@ -15,3 +15,20 @@ target_link_libraries(uvExecutor_Test
 set_target_properties(uvExecutor_Test PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/output/bin"
 )
+
+add_executable(uvHandle_Test
+    ${CMAKE_SOURCE_DIR}/src/executor/uvHandle_Test.cc
+    ${CMAKE_SOURCE_DIR}/src/executor/uvHandle.hpp
+    ${CMAKE_SOURCE_DIR}/src/executor/uvExecutor.hpp)
+target_include_directories(uvHandle_Test
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/executor
+        ${CMAKE_SOURCE_DIR}/_deps/include
+)
+target_link_libraries(uvHandle_Test
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/_deps/lib/libuv.so
+        pthread)
+set_target_properties(uvHandle_Test PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/output/bin"
+)

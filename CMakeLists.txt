@@ -17,7 +17,7 @@ set(CMAKE_BUILD_TYPE "Debug")
 # Debug模式配置
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # 启用位置无关代码（PIC）
-    set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "Enable PIC for ASan" FORCE)
+    # set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "Enable PIC for ASan" FORCE)
 
     # 设置C/C++通用调试参数
     set(COMMON_DEBUG_FLAGS "-g3 -O0 -Wall -Wextra")
@@ -31,15 +31,15 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         CACHE STRING "Debug C++ flags" FORCE)
 
     # 设置链接器参数（同时作用于C/C++目标）
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address" 
-        CACHE STRING "Debug linker flags" FORCE)
+    # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address" 
+    #     CACHE STRING "Debug linker flags" FORCE)
 
     # 标记高级变量
     mark_as_advanced(
-        CMAKE_POSITION_INDEPENDENT_CODE
+        # CMAKE_POSITION_INDEPENDENT_CODE
         CMAKE_C_FLAGS
         CMAKE_CXX_FLAGS
-        CMAKE_EXE_LINKER_FLAGS
+        # CMAKE_EXE_LINKER_FLAGS
     )
 endif()
 
