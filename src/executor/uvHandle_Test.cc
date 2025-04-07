@@ -13,6 +13,8 @@ void tcp_server_example() {
 
     EventLoop loop;
     auto server = std::make_shared<TcpServerHandle>(loop);
+    // 存储所有活动连接
+    auto connections = std::make_shared<std::vector<std::shared_ptr<TcpConnection>>>();
 
     if (!server->bind_and_listen("0.0.0.0", 8080)) {
         std::cout << "服务器绑定失败" << std::endl;
@@ -20,8 +22,9 @@ void tcp_server_example() {
     }
 
     // 设置连接回调
-    server->set_connection_callback([](std::shared_ptr<TcpConnection> conn) {
+    server->set_connection_callback([connections](std::shared_ptr<TcpConnection> conn) {
         std::cout << "新的TCP客户端连接" << std::endl;
+        connections->push_back(conn);  // 保存连接
 
         // 获取客户端地址信息
         struct sockaddr_storage addr;
@@ -52,6 +55,27 @@ void tcp_server_example() {
     server->set_error_callback([](int status) { std::cout << "服务器错误: " << uv_strerror(status) << std::endl; });
 
     std::cout << "TCP服务器监听在 0.0.0.0:8080" << std::endl;
+
+    SignalHandlePtr signal = std::make_shared<SignalHandle>(loop);
+    signal->start(SIGINT, [&loop, connections, server](int)
+                  {
+        std::cout << "正在关闭服务器..." << std::endl;
+        
+        // 首先关闭所有客户端连接
+        for(auto& conn : *connections) {
+            conn->close([](int status) {
+                if (status < 0) {
+                    std::cout << "关闭连接错误: " << uv_strerror(status) << std::endl;
+                }
+            });
+        }
+        
+        // 等待一小段时间确保连接关闭
+        loop.post([connections, &loop]() {
+            std::cout << "清理 " << connections->size() << " 个连接..." << std::endl;
+            connections->clear();  // 清理所有连接
+            loop.stop();
+        }); });
     loop.run();
 }
 

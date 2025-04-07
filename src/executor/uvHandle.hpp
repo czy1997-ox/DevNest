@@ -119,6 +119,23 @@ struct TcpConnection {
     uv_tcp_t tcp;
 
     explicit TcpConnection(size_t buffer_size = 65536) : buffer(buffer_size) {}
+
+    // 添加close方法
+    void close(std::function<void(int status)> callback = nullptr) {
+        if (!uv_is_closing(reinterpret_cast<uv_handle_t *>(&tcp))) {
+            // 保存回调供关闭完成时使用
+            tcp.data = new std::function<void(int)>(std::move(callback));
+
+            uv_close(reinterpret_cast<uv_handle_t *>(&tcp), [](uv_handle_t *handle) {
+                if (handle->data) {
+                    auto callback = static_cast<std::function<void(int)> *>(handle->data);
+                    (*callback)(0);  // 调用回调
+                    delete callback; // 清理回调
+                    handle->data = nullptr;
+                }
+            });
+        }
+    }
 };
 
 // TCP 基础句柄类
